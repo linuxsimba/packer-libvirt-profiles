@@ -5,7 +5,7 @@
 
 ##Download Packer            
   
-[Packer](http://www.packer.io/docs/builders/qemu.html) is a for creating machine images from a single source configuration.
+[Packer](http://www.packer.io/docs/builders/qemu.html) is for creating machine images from a single source configuration.
 
 Packer ships in a zip package that contains binary files. Example of how
 download packer and update the executable path search location.
