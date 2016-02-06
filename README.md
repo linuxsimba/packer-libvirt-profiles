@@ -29,7 +29,12 @@ all providers except QEMU.
 Attempt to build vagrant box for mirantis Fuel master node. Used centos-6 packer
 template from [chef/bento](http://github.com/chef/bento) project as a template.
 
-To build run the following:
+The final vagrant box does not have the docker containers necessary for Fuel to
+work. This was done to conserve disk size. When ``vagrant up`` is issued. A
+provisioner script executes to create the docker containers and causes the VM
+size to grow significantly.
+
+To build, run the following:
 ```
 mkdir -p $HOME/tmp/openstack
 export TMPDIR=$HOME/tmp/openstack
@@ -39,3 +44,11 @@ packer build mirantis-7.x86_64.json
 The reason for defining the TMPDIR is because without this you get a
 ``post-processor failure: ran of a disk space`` message. By default packer uses
 the ``/tmp`` directory which in my case is a RAMFS partition with only 4GB.
+
+In the ``vagrantfile-example`` directory there is a sample VagrantFile for
+running the master node.
+
+> Note: this vagrant box is only for libvirt. Will build a Virtualbox version at
+> some later stage. I use the libvirt provider more often than the Virtualbox
+> provider. But I know most people use the Virtualbox provider. If someone wants
+> to build that and issue a Pull Request, I will gladly accept it.
