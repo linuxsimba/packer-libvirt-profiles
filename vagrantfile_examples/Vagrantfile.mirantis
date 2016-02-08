@@ -85,7 +85,7 @@ Vagrant.configure(2) do |config|
     end
     # Back to back connection between openstack server 1 and 2
     node.vm.network :private_network,
-      :libvirt__tunnel_type => 'tcp',
+      :libvirt__tunnel_type => 'client',
       :libvirt__tunnel_port => '9999'
   end
 end
