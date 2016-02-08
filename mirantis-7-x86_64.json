@@ -19,18 +19,14 @@
       "ssh_username": "vagrant",
       "ssh_wait_timeout": "10000s",
       "type": "qemu",
+      "headless": "{{ user `headless` }}",
       "vm_name": "{{ user `template` }}"
     }
   ],
   "post-processors": [
     {
       "output": "builds/{{user `box_basename`}}.{{.Provider}}.box",
-      "type": "vagrant",
-      "override": {
-        "qemu": {
-          "vagrantfile_template": "vagrantfile_template/mirantis.libvirt"
-        }
-      }
+      "type": "vagrant"
     }
   ],
   "provisioners": [
@@ -63,7 +59,7 @@
     "box_basename": "mirantis-fuel-7",
     "build_timestamp": "{{isotime \"20060102150405\"}}",
     "git_revision": "__unknown_git_revision__",
-    "headless": "",
+    "headless": "true",
     "http_proxy": "{{env `http_proxy`}}",
     "https_proxy": "{{env `https_proxy`}}",
     "iso_checksum": "d0597e5c25f6c4b29fc85d7b131b92c81d29eb3518298a1855b27927cefd006c",

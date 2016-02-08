@@ -9,9 +9,6 @@ fuel_master_cpu = 2
 openstack_server_memory = 2048
 openstack_server_disk_size = '100G'
 
-#udp port numbers to connect server1/2 with back to back links
-server1_to_server2  = [9988, 8899]
-
 ## When running `vagrant up` run it with the `--no-parallel` option.
 ## This ensures that the fuel_master comes up first
 
@@ -42,12 +39,14 @@ Vagrant.configure(2) do |config|
     node.vm.network "forwarded_port", guest: 8000, host: 8000
     # During provisioning of docker containers, Fuel will attempt to bring up
     # the fuel menu but fail, due to ssh settings on the vagrant provisioner. its okay
-    # its not a problem. Just ignore.
+    # its not a problem. Just ignore. For some reason I cannot get the ks.cfg in
+    # the packer script to set to the ENABLED=1.. So just decrement to -1
+    # instead.
     node.vm.provision "shell", inline: <<-SHELL
       . /etc/sysconfig/bootstrap_admin_node
-      if test "${ENABLED}" = "1"; then
+      if test "${ENABLED}" = "0"; then
         touch /etc/dnsmasq.upstream
-        echo "ENABLED=0" > /etc/sysconfig/bootstrap_admin_node
+        echo "ENABLED=-1" > /etc/sysconfig/bootstrap_admin_node
         /usr/local/sbin/bootstrap_admin_node.sh 2>&1 | tee /var/log/puppet/bootstrap_admin_node.log
         echo "Sleep for 60 seconds to ensure docker containers come up. Otherwise PXE Booting Openstack Nodes in next vagrant bringup will fail"
         sleep 60
@@ -65,13 +64,12 @@ Vagrant.configure(2) do |config|
       domain.memory = openstack_server_memory
       domain.management_network_name = 'pxe_network'
       domain.management_network_address = '10.20.0.0/24'
-      domain.management_network_mac = '561122334411'
+      domain.management_network_mac = '361122334411'
     end
     # Back to back connection between openstack server 1 and 2
     node.vm.network :private_network,
-      :libvirt__tunnel_type => 'udp',
-      :libvirt__tunnel_port => server1_to_server2[0],
-      :libvirt__tunnel_local_port => server1_to_server2[1]
+      :libvirt__tunnel_type => 'server',
+      :libvirt__tunnel_port => '9999'
   end
 
   # 2nd Openstack Server
@@ -83,12 +81,11 @@ Vagrant.configure(2) do |config|
       domain.memory = openstack_server_memory
       domain.management_network_name = 'pxe_network'
       domain.management_network_address = '10.20.0.0/24'
-      domain.management_network_mac = '561122334455' # in private mac range
+      domain.management_network_mac = '361122334455' # in private mac range
     end
     # Back to back connection between openstack server 1 and 2
     node.vm.network :private_network,
-      :libvirt__tunnel_type => 'udp',
-      :libvirt__tunnel_port => server1_to_server2[1],
-      :libvirt__tunnel_local_port => server1_to_server2[0]
+      :libvirt__tunnel_type => 'tcp',
+      :libvirt__tunnel_port => '9999'
   end
 end
