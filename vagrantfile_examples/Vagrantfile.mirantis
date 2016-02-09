@@ -59,6 +59,10 @@ Vagrant.configure(2) do |config|
       . /etc/sysconfig/bootstrap_admin_node
       if test "${ENABLED}" = "0"; then
         touch /etc/dnsmasq.upstream
+        grep -v "^NTP" /etc/fuel/astute.yaml > /tmp/astute.yaml
+        echo "NTP1: '10.20.0.2'" >> /tmp/astute.yaml
+        cp /etc/fuel/astute.yaml /etc/fuel/astute.yaml.old
+        cp /tmp/astute.yaml /etc/fuel/astute.yaml
         echo "ENABLED=-1" > /etc/sysconfig/bootstrap_admin_node
         /usr/local/sbin/bootstrap_admin_node.sh 2>&1 | tee /var/log/puppet/bootstrap_admin_node.log
         echo "Installing apt repo cause design doesn't have a valid public interface. May have to review design if keep running into problems"
