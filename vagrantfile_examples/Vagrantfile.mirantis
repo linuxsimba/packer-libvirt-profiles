@@ -89,8 +89,9 @@ Vagrant.configure(2) do |config|
     # Back to back connection between openstack server 1 and 2
     # configures the mgmt and storage and tenant networks (vlan type driver)
     node.vm.network :private_network,
-      :libvirt__tunnel_type => 'server',
-      :libvirt__tunnel_port => '9999'
+      :libvirt__tunnel_type => 'udp',
+      :libvirt__tunnel_port => '10000',
+      :libvirt__tunnel_local_ip => '9999'
     # nic for the public network(really doesn't go to the internet. Just a
     # mirantis_public_net bridge)
     node.vm.network :private_network,
@@ -113,8 +114,9 @@ Vagrant.configure(2) do |config|
     # Back to back connection between openstack server 1 and 2
     # configures the mgmt and storage and tenant networks (vlan type driver)
     node.vm.network :private_network,
-      :libvirt__tunnel_type => 'client',
-      :libvirt__tunnel_port => '9999'
+      :libvirt__tunnel_type => 'udp',
+      :libvirt__tunnel_port => '9999',
+      :libvirt__tunnel_local_ip => '10000'
     # nic for the public network(really doesn't go to the internet. Just a
     # bridge). do not configure any IP address on this nic. just add it to the
     # mirantis_public_net bridge
