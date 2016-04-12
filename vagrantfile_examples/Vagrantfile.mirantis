@@ -91,7 +91,7 @@ Vagrant.configure(2) do |config|
     node.vm.network :private_network,
       :libvirt__tunnel_type => 'udp',
       :libvirt__tunnel_port => '10000',
-      :libvirt__tunnel_local_ip => '9999'
+      :libvirt__tunnel_local_port => '9999'
     # nic for the public network(really doesn't go to the internet. Just a
     # mirantis_public_net bridge)
     node.vm.network :private_network,
@@ -116,7 +116,7 @@ Vagrant.configure(2) do |config|
     node.vm.network :private_network,
       :libvirt__tunnel_type => 'udp',
       :libvirt__tunnel_port => '9999',
-      :libvirt__tunnel_local_ip => '10000'
+      :libvirt__tunnel_local_port => '10000'
     # nic for the public network(really doesn't go to the internet. Just a
     # bridge). do not configure any IP address on this nic. just add it to the
     # mirantis_public_net bridge
