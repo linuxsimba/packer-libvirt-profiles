@@ -1,0 +1,176 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Mirantis 8.0 Vagrant File
+#
+# Default Fuel master settings
+fuel_master_memory = 2048
+fuel_master_cpu = 2
+
+# Default openstack server settings.
+openstack_server_memory = 2048
+openstack_server_disk_size = '100G'
+
+## When running `vagrant up` run it with the `--no-parallel` option.
+## This ensures that the fuel_master comes up first
+
+$fuel_post_install_one = <<SCRIPT
+
+. /etc/sysconfig/bootstrap_admin_node
+if test "${ENABLED}" = "1"; then
+   touch /etc/dnsmasq.upstream
+
+   fuelmenu -s -i eth1
+   echo "* ran fuelmenu in with eth1 as admin interface"
+   echo "* next changing NTP settings and prepping to run bootstrap_admin_node.sh"
+   echo "* after running bootstrap_admin_node.sh fix ssh config so that vagrant ssh works"
+fi
+SCRIPT
+
+$fuel_post_install_two = <<SCRIPT
+. /etc/sysconfig/bootstrap_admin_node
+if test "${ENABLED}" = "1"; then
+
+   echo "* change the NTP settings to point to the Fuel node"
+   grep -v "NTP" /etc/fuel/astute.yaml > /tmp/astute.yaml
+   echo "NTP1: '10.20.0.2'" >> /tmp/astute.yaml
+   cp /etc/fuel/astute.yaml /etc/fuel/astute.yaml.old
+   cp /tmp/astute.yaml /etc/fuel/astute.yaml
+
+   sed -i 's/ADMIN_INTERFACE.*/ADMIN_INTERFACE=eth1/' /etc/fuel/bootstrap_admin_node.conf
+   # Vagrant uses DEVICE instead of NAME keyword in calling interfaces.
+   # Change this in bootstrap script so that it finds eth1
+   sed -i 's/ NAME/ DEVICE/' /usr/local/sbin/bootstrap_admin_node.sh
+   # for some reason its getting stuck running the fuelmenu. bypass all that
+   # stuff
+   sed -i s/"fuelmenu$"/"fuelmenu --save-only --iface=eth1"/ /usr/local/sbin/bootstrap_admin_node.sh
+
+   # Fuel menu modifies ssh config?? change it to allow to listen on any
+   # interface
+   sed -i 's/ListenAddress.*/ListenAddress 0.0.0.0/' /etc/ssh/sshd_config
+   systemctl restart sshd
+
+   echo "* Getting ready to install Fuel docker containers. This will take a while"
+
+fi
+SCRIPT
+
+$fuel_post_install_three = <<SCRIPT
+. /etc/sysconfig/bootstrap_admin_node
+if test "${ENABLED}" = "1"; then
+   /usr/local/sbin/bootstrap_admin_node.sh 2>&1 | tee /var/log/puppet/bootstrap_admin_node.log
+   # sleep for 60s to ensure containers come up. otherwise PXE booting
+   # on next vagrant bringup will fail
+   sleep 60
+   # Ensure this provisioner doesn't run again.
+   echo "ENABLED=-1" > /etc/sysconfig/bootstrap_admin_node
+
+   echo "* completed installing fuel docker containers"
+fi
+SCRIPT
+
+
+   # Create Apt mirror so that installs go faster
+   # fuel-mirror
+
+#fi
+
+#SCRIPT
+
+Vagrant.configure(2) do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+
+  # Disable the synced_folder feature
+  config.vm.synced_folder '.', '/vagrant', :disabled => true
+
+  config.vm.define :fuel_master do |node|
+    node.vm.provider :libvirt do |domain|
+      domain.memory = 4096
+      domain.cpus = 2
+    end
+    config.ssh.pty = true
+    node.vm.box = "mos8"
+    node.vm.network :private_network,
+      :ip => '10.20.0.2',
+      :netmask => '255.255.255.0',
+      :libvirt__forward_mode => 'none',
+      :libvirt__network_name => 'pxe_network',
+      :libvirt__dhcp_enabled => false
+    # this is needed to create the mirantis_public_net in libvirt
+    # Give it an address that does not conflict with the default "public"
+    # address range given in Fuel GUI.
+    # Again this is just for testing, so design does not have to be perfect
+    node.vm.network :private_network,
+      :ip => '172.16.0.254',
+      :netmask => '255.255.255.0',
+      :libvirt__network_name => 'mirantis_public_net',
+      :libvirt__dhcp_enabled => false
+
+    node.vm.network "forwarded_port", guest: 8000, host: 8000
+    # Vagrant box comes up with no docker containers installed
+    # This shell provisioner finishes the process.
+    node.vm.provision "shell", inline: $fuel_post_install_one
+    node.vm.provision "shell", inline: $fuel_post_install_two
+    node.vm.provision "shell", inline: $fuel_post_install_three
+  end
+
+  # 1st Openstack Server
+  config.vm.define :openstack_node1 do |node|
+    node.vm.communicator = ''
+    node.vm.provider :libvirt do |domain|
+      domain.storage :file, :size => openstack_server_disk_size, :type => 'qcow2'
+      domain.boot 'network'
+      domain.boot 'hd'
+      domain.cpus = 2
+      domain.memory = '4096'
+      domain.management_network_name = 'pxe_network'
+      domain.management_network_address = '10.20.0.0/24'
+      domain.management_network_mac = '361122334411'
+    end
+    # Back to back connection between openstack server 1 and 2
+    # configures the mgmt and storage and tenant networks (vlan type driver)
+    node.vm.network :private_network,
+      :libvirt__tunnel_type => 'udp',
+      :libvirt__tunnel_port => '10000',
+      :libvirt__tunnel_local_port => '9999'
+    # nic for the public network(really doesn't go to the internet. Just a
+    # mirantis_public_net bridge)
+    node.vm.network :private_network,
+      :ip => '172.16.0.2/24',
+      :auto_config => false,
+      :libvirt__network_name => 'mirantis_public_net'
+  end
+
+  # 2nd Openstack Server
+  config.vm.define :openstack_node2 do |node|
+    node.vm.provider :libvirt do |domain|
+      domain.storage :file, :size => openstack_server_disk_size , :type => 'qcow2'
+      domain.boot 'network'
+      domain.boot 'hd'
+      domain.memory = '12000'
+      domain.management_network_name = 'pxe_network'
+      domain.management_network_address = '10.20.0.0/24'
+      domain.management_network_mac = '361122334455' # in private mac range
+    end
+    # Back to back connection between openstack server 1 and 2
+    # configures the mgmt and storage and tenant networks (vlan type driver)
+    node.vm.network :private_network,
+      :libvirt__tunnel_type => 'udp',
+      :libvirt__tunnel_port => '9999',
+      :libvirt__tunnel_local_port => '10000'
+    # nic for the public network(really doesn't go to the internet. Just a
+    # bridge). do not configure any IP address on this nic. just add it to the
+    # mirantis_public_net bridge
+    node.vm.network :private_network,
+      :ip => '172.16.0.3/24',
+      :auto_config => false,
+      :libvirt__network_name => 'mirantis_public_net'
+  end
+end
