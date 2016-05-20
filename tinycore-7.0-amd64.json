@@ -1,0 +1,65 @@
+{
+  "builders": [
+    {
+      "boot_command": [
+        "<enter><wait>"
+      ],
+      "boot_wait": "2s",
+      "disk_size": 256,
+      "http_directory": "http",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_url": "{{user `mirror_directory`}}/{{user `iso_name`}}",
+      "output_directory": "packer-{{user `template`}}-qemu",
+      "shutdown_command": "echo 'vagrant'|sudo -S poweroff",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_username": "vagrant",
+      "ssh_wait_timeout": "10000s",
+      "disk_interface": "virtio",
+      "net_device": "virtio-net",
+      "type": "qemu",
+      "vm_name": "{{ user `template` }}"
+    }
+  ],
+  "post-processors": [
+    {
+      "output": "builds/{{user `box_basename`}}.{{.Provider}}.box",
+      "type": "vagrant"
+    }
+  ],
+  "provisioners": [
+    {
+      "destination": "/tmp/bento-metadata.json",
+      "source": "{{user `metadata`}}",
+      "type": "file"
+    },
+    {
+      "environment_vars": [
+        "HOME_DIR=/home/vagrant",
+        "http_proxy={{user `http_proxy`}}",
+        "https_proxy={{user `https_proxy`}}",
+        "no_proxy={{user `no_proxy`}}"
+      ],
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -eux '{{.Path}}'",
+      "scripts": [
+        "scripts/common/metadata.sh",
+        "scripts/tinycore/install_tinycore.sh"
+      ],
+      "type": "shell"
+    }
+  ],
+  "variables": {
+    "box_basename": "tinycore-7.0",
+    "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "git_revision": "__unknown_git_revision__",
+    "headless": "",
+    "iso_checksum": "1b73e8257eb5d2a31101e8d565275fe082a77fd7733710d79425c89a359c1c3f",
+    "iso_checksum_type": "sha256",
+    "iso_name": "tinycore-vagrant.iso",
+    "metadata": "floppy/dummy_metadata.json",
+    "name": "tinycore-vagrant",
+    "mirror_directory": "{{ env `HOME` }}/openstack/",
+    "version": "1.0.TIMESTAMP"
+  }
+}

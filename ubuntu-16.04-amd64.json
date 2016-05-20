@@ -2,9 +2,10 @@
   "builders": [
     {
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
         "/install/vmlinuz<wait>",
         " auto<wait>",
         " console-setup/ask_detect=false<wait>",
@@ -20,13 +21,14 @@
         " locale=en_US<wait>",
         " netcfg/get_domain=vm<wait>",
         " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
         " noapic<wait>",
         " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_path`}}<wait>",
         " -- <wait>",
         "<enter><wait>"
       ],
       "boot_wait": "10s",
-      "disk_size": 40960,
+      "disk_size": "{{user `disk_size`}}",
       "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
       "guest_os_type": "Ubuntu_64",
       "hard_drive_interface": "sata",
@@ -47,13 +49,13 @@
           "modifyvm",
           "{{.Name}}",
           "--memory",
-          "384"
+          "{{ user `memory` }}"
         ],
         [
           "modifyvm",
           "{{.Name}}",
           "--cpus",
-          "1"
+          "{{ user `cpus` }}"
         ]
       ],
       "virtualbox_version_file": ".vbox_version",
@@ -61,9 +63,10 @@
     },
     {
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
         "/install/vmlinuz<wait>",
         " auto<wait>",
         " console-setup/ask_detect=false<wait>",
@@ -79,13 +82,14 @@
         " locale=en_US<wait>",
         " netcfg/get_domain=vm<wait>",
         " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
         " noapic<wait>",
         " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_path`}}<wait>",
         " -- <wait>",
         "<enter><wait>"
       ],
       "boot_wait": "10s",
-      "disk_size": 40960,
+      "disk_size": "{{user `disk_size`}}",
       "guest_os_type": "ubuntu-64",
       "headless": "{{ user `headless` }}",
       "http_directory": "http",
@@ -103,15 +107,17 @@
       "vm_name": "{{ user `template` }}",
       "vmx_data": {
         "cpuid.coresPerSocket": "1",
-        "memsize": "384",
-        "numvcpus": "1"
+        "ethernet0.pciSlotNumber": "32",
+        "memsize": "{{ user `memory` }}",
+        "numvcpus": "{{ user `cpus` }}"
       }
     },
     {
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
         "/install/vmlinuz<wait>",
         " auto<wait>",
         " console-setup/ask_detect=false<wait>",
@@ -127,13 +133,14 @@
         " locale=en_US<wait>",
         " netcfg/get_domain=vm<wait>",
         " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
         " noapic<wait>",
         " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_path`}}<wait>",
         " -- <wait>",
         "<enter><wait>"
       ],
       "boot_wait": "10s",
-      "disk_size": 40960,
+      "disk_size": "{{user `disk_size`}}",
       "guest_os_type": "ubuntu",
       "http_directory": "http",
       "iso_checksum": "{{user `iso_checksum`}}",
@@ -146,13 +153,13 @@
           "set",
           "{{.Name}}",
           "--memsize",
-          "384"
+          "{{ user `memory` }}"
         ],
         [
           "set",
           "{{.Name}}",
           "--cpus",
-          "1"
+          "{{ user `cpus` }}"
         ]
       ],
       "prlctl_version_file": ".prlctl_version",
@@ -166,9 +173,10 @@
     },
     {
       "boot_command": [
-        "<esc><wait>",
-        "<esc><wait>",
-        "<enter><wait>",
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
         "/install/vmlinuz<wait>",
         " auto<wait>",
         " console-setup/ask_detect=false<wait>",
@@ -184,13 +192,15 @@
         " locale=en_US<wait>",
         " netcfg/get_domain=vm<wait>",
         " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/vda<wait>",
         " noapic<wait>",
         " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{user `preseed_path`}}<wait>",
         " -- <wait>",
         "<enter><wait>"
       ],
       "boot_wait": "10s",
-      "disk_size": 40960,
+      "disk_size": "{{user `disk_size`}}",
+      "headless": "{{ user `headless` }}",
       "http_directory": "http",
       "iso_checksum": "{{user `iso_checksum`}}",
       "iso_checksum_type": "{{user `iso_checksum_type`}}",
@@ -231,7 +241,6 @@
         "scripts/common/sshd.sh",
         "scripts/ubuntu/networking.sh",
         "scripts/ubuntu/sudoers.sh",
-        "scripts/ubuntu/console.sh",
         "scripts/ubuntu/vagrant.sh",
         "scripts/common/vmtools.sh",
         "scripts/ubuntu/for_lab.sh",
@@ -242,22 +251,25 @@
     }
   ],
   "variables": {
-    "box_basename": "ubuntu-14.04",
+    "box_basename": "ubuntu-16.04",
     "build_timestamp": "{{isotime \"20060102150405\"}}",
+    "cpus": "1",
+    "disk_size": "40960",
     "git_revision": "__unknown_git_revision__",
     "headless": "",
     "http_proxy": "{{env `http_proxy`}}",
     "https_proxy": "{{env `https_proxy`}}",
-    "iso_checksum": "07e4bb5569814eab41fafac882ba127893e3ff0bdb7ec931c9b2d040e3e94e7a",
+    "iso_checksum": "b8b172cbdf04f5ff8adc8c2c1b4007ccf66f00fc6a324a6da6eba67de71746f6",
     "iso_checksum_type": "sha256",
-    "iso_name": "ubuntu-14.04.4-server-amd64.iso",
+    "iso_name": "ubuntu-16.04-server-amd64.iso",
+    "memory": "512",
     "metadata": "floppy/dummy_metadata.json",
     "mirror": "http://releases.ubuntu.com",
-    "mirror_directory": "14.04.4",
-    "name": "ubuntu-14.04",
+    "mirror_directory": "16.04",
+    "name": "ubuntu-16.04",
     "no_proxy": "{{env `no_proxy`}}",
-    "preseed_path": "ubuntu-14.04/preseed.cfg",
-    "template": "ubuntu-14.04-amd64",
+    "preseed_path": "ubuntu-15.10/preseed.cfg",
+    "template": "ubuntu-16.04-amd64",
     "version": "2.1.TIMESTAMP"
   }
 }
