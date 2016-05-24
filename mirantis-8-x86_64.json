@@ -53,7 +53,12 @@
         "scripts/centos/cleanup.sh",
         "scripts/common/minimize.sh"
       ],
-      "type": "shell"
+      "type": "shell",
+      "environment_variables": [
+        "EXTIP={{ user `external_ip`}}",
+        "EXT_IP_PREFIX={{ user `external_ip_prefix` }}",
+        "EXT_IP_GWY={{ user `external_ip_gwy` }}"
+      ]
     }
   ],
 
