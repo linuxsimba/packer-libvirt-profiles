@@ -56,8 +56,7 @@ running the master node.
 ### Tinycore Linux
 
 To build the ISO required to use with this packer script, go to my fork
-of the [tinycorelinux-packer-image
-repo](https://github.com:linuxsimba/tinycorelinux-packer-image)
+of the [tinycorelinux-packer-image repo](https://github.com:linuxsimba/tinycorelinux-packer-image)
 
 Copy the iso to the ``$HOME/openstack`` directory. If you wish to put in a
 different directory, modify the ``mirror_directory`` variable in the tinycore
