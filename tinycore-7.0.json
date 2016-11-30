@@ -55,7 +55,7 @@
     "build_timestamp": "{{isotime \"20060102150405\"}}",
     "git_revision": "__unknown_git_revision__",
     "headless": "",
-    "iso_checksum": "7e9863fc7126ce68c86bfbb2119cb89a61552c0e0167d98d2934580bbb01348e",
+    "iso_checksum": "1b73e8257eb5d2a31101e8d565275fe082a77fd7733710d79425c89a359c1c3f",
     "iso_checksum_type": "sha256",
     "iso_name": "tinycore-vagrant.iso",
     "metadata": "floppy/dummy_metadata.json",

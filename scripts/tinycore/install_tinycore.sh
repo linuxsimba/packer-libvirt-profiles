@@ -38,4 +38,8 @@ EOF
 
 # mount vda3 so that we can install the vagrant ssh home directory in
 # this partition for persistence.
+if [ ! -d /mnt/vda3 ]; then
+  mkdir /mnt/vda3
+fi
+
 mount /dev/vda3 /mnt/vda3

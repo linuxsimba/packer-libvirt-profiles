@@ -1,0 +1,38 @@
+#!/bin/sh -eux
+
+
+echo "DEFAULT ADMIN NETWORK is eth0"
+echo "ADMIN Interface is assigned 10.20.0.2/24"
+cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-eth0
+NAME="eth0"
+DEVICE=eth0
+ONBOOT=yes
+NETBOOT=no
+IPV6INIT=no
+BOOTPROTO=none
+IPADDR=10.20.0.2
+NETMASK=255.255.255.0
+TYPE=Ethernet
+NM_CONTROLLED=no
+EOF
+
+echo "Setting Up External Facing Interface $EXTERNAL_NET_IFACE"
+echo "Gateway: $EXTERNAL_NET_GATEWAY"
+echo "IP: $EXTERNAL_NET_IP/$EXTERNAL_NET_PREFIX"
+cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-$EXTERNAL_NET_IFACE
+NAME="$EXTERNAL_NET_IFACE"
+DEVICE=$EXTERNAL_NET_IFACE
+ONBOOT=yes
+NETBOOT=no
+IPV6INIT=no
+BOOTPROTO=none
+IPADDR=$EXTERNAL_NET_IP
+PREFIX=$EXTERNAL_NET_PREFIX
+TYPE=Ethernet
+NM_CONTROLLED=no
+GATEWAY=$EXTERNAL_NET_GATEWAY
+DNS1=10.20.0.2
+DNS2=8.8.8.8
+DOMAIN="localdomain"
+VLAN=$EXTERNAL_NET_IS_SUBINT
+EOF
