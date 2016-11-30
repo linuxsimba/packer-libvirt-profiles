@@ -51,13 +51,17 @@
         "scripts/centos/update.sh",
         "scripts/common/vmtools.sh",
         "scripts/centos/cleanup.sh",
-        "scripts/common/minimize.sh"
+        "scripts/common/minimize.sh",
+        "scripts/mirantis/fuel_network.sh",
+        "scripts/mirantis/update-fuel-features.sh"
       ],
       "type": "shell",
-      "environment_variables": [
-        "EXTIP={{ user `external_ip`}}",
-        "EXT_IP_PREFIX={{ user `external_ip_prefix` }}",
-        "EXT_IP_GWY={{ user `external_ip_gwy` }}"
+ 				"environment_vars": [
+        	"EXTERNAL_NET_IS_SUBINT={{ user `external_net_is_subint` }}",
+        	"EXTERNAL_NET_IFACE={{ user `external_net_iface` }}",
+        	"EXTERNAL_NET_IP={{ user `external_net_ip` }}",
+        	"EXTERNAL_NET_PREFIX={{ user `external_net_prefix` }}",
+        	"EXTERNAL_NET_GATEWAY={{ user `external_net_gateway` }}"
       ]
     }
   ],
@@ -79,7 +83,13 @@
     "name": "mirantis-8",
     "no_proxy": "{{env `no_proxy`}}",
     "template": "mirantis-8",
-    "version": "2.1.TIMESTAMP"
+    "version": "2.1.TIMESTAMP",
+    "external_net_is_subint": "no",
+    "external_net_iface": "",
+    "external_net_ip": "",
+    "external_net_prefix": "",
+    "external_net_gateway": ""
+
   }
 }
 
